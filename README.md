@@ -1,4 +1,4 @@
-# ONIRIQUE LA-2A (JUCE 8 / VST3, AU)
+# ONIRIQUE L2A (JUCE 8 / VST3, AU)
 
 le compresseur optique de VOCALBOX : GAIN, PEAK REDUCTION, MODE COMPRESS / LIMIT, METER GAIN RED / +10 / +4, sur une façade à lui dans la DA ONIRIQUE, avec son VU.
 En bas : OVERSAMPLING (OFF / 2x / 4x / 8x, latence déclarée), MIX (son direct en phase), réduction de gain.

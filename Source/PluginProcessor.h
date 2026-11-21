@@ -9,11 +9,11 @@
 #endif
 
 #if SOLO_LA2A
- #define SOLO_NAME "ONIRIQUE LA-2A"
- #define SOLO_SLUG "onirique-la2a"
+ #define SOLO_NAME "ONIRIQUE L2A"
+ #define SOLO_SLUG "onirique-l2a"
 #else
- #define SOLO_NAME "ONIRIQUE 1176"
- #define SOLO_SLUG "onirique-1176"
+ #define SOLO_NAME "ONIRIQUE F76"
+ #define SOLO_SLUG "onirique-f76"
 #endif
 
 //==============================================================================
@@ -57,7 +57,7 @@ public:
 
     juce::UndoManager undo { 30000, 60 };
     juce::AudioProcessorValueTreeState apvts;
-    onirique::PresetBank presets { apvts, SOLO_LA2A ? "LA-2A" : "1176", solopresets::stockPresets(), solopresets::tagNames(), params::notStored() };
+    onirique::PresetBank presets { apvts, SOLO_LA2A ? "L2A" : "F76", solopresets::stockPresets(), solopresets::tagNames(), params::notStored() };
 #if SOLO_LICENCE
     onirique::license::Guard license { SOLO_SLUG };
 #endif

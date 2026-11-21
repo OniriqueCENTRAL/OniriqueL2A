@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
 
 env:
-  TARGET: OniriqueLA2A            # cible CMake
-  PRODUCT: ONIRIQUE LA-2A          # PRODUCT_NAME du plugin
-  SLUG: onirique-la2a             # identifiant du plugin dans ONIRIQUE CENTRAL (= identifiant de licence)
+  TARGET: OniriqueL2A            # cible CMake
+  PRODUCT: ONIRIQUE L2A          # PRODUCT_NAME du plugin
+  SLUG: onirique-l2a             # identifiant du plugin dans ONIRIQUE CENTRAL (= identifiant de licence)
 
 jobs:
   mac:
@@ -20,7 +20,7 @@ jobs:
       - name: Compiler (universel arm64 + x86_64)
         run: |
           cmake -B build -G Xcode -DSOLO_TESTS=OFF
-          cmake --build build --config Release --target OniriqueLA2A_VST3 OniriqueLA2A_AU -- -quiet
+          cmake --build build --config Release --target OniriqueL2A_VST3 OniriqueL2A_AU -- -quiet
       - name: Signer (ad hoc) et empaqueter
         run: |
           OUT="build/${TARGET}_artefacts/Release"

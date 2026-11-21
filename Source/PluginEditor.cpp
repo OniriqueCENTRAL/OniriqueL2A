@@ -39,7 +39,7 @@ SoloEditor::SoloEditor (SoloProcessor& proc)
       vu ([this] { return vuValue(); }),
       oversampling (p (params::oversampling), { "OFF", "2x", "4x", "8x" }),
       mix (p (params::mix), "MIX", knobLook),
-      bar (proc.presets, proc.apvts, SOLO_LA2A ? "LA-2A" : "1176", {}, baseWidth, baseWidth)
+      bar (proc.presets, proc.apvts, SOLO_LA2A ? "L2A" : "F76", {}, baseWidth, baseWidth)
 {
     onirique::look::load();
     setLookAndFeel (&menuLook);
@@ -63,12 +63,12 @@ SoloEditor::SoloEditor (SoloProcessor& proc)
 #else
     for (juce::Component* c : std::initializer_list<juce::Component*> { &input, &output, &attack, &release, &ratio, &revision })
         addAndMakeVisible (c);
-    input.setTip (fr ("INPUT : on pousse le signal dans le 1176 (le seuil est fixe, comme sur l'appareil). Plus haut, plus de compression."));
+    input.setTip (fr ("INPUT : on pousse le signal dans le compresseur (le seuil est fixe, comme sur l'appareil). Plus haut, plus de compression."));
     output.setTip (fr ("OUTPUT : le niveau de sortie."));
     attack.setTip (fr ("ATTACK : de 800 µs (tout à gauche) à 20 µs (tout à droite), comme sur l'appareil : à droite, c'est plus rapide."));
     release.setTip (fr ("RELEASE : de 1,1 s (tout à gauche) à 50 ms (tout à droite)."));
-    ratio.setTooltip (fr ("RATIO : 4, 8, 12, 20, ou ALL (tous les boutons enfoncés : le grain et l'écrasement du « all buttons »)."));
-    revision.setTooltip (fr ("BLACK : le 1176LN, propre et serré. BLUE : la première génération, plus colorée, plus de grain, des médiums en avant."));
+    ratio.setTooltip (fr ("RATIO : 4, 8, 12, 20, ou ALL (tous les boutons enfoncés : le grain et l'écrasement)."));
+    revision.setTooltip (fr ("BLACK : propre et serré. BLUE : la première génération, plus colorée, plus de grain, des médiums en avant."));
 #endif
     for (juce::Component* c : std::initializer_list<juce::Component*> { &meter, &vu, &oversampling, &mix })
         addAndMakeVisible (c);
@@ -245,7 +245,7 @@ void SoloEditor::renderBackground()
         g.setColour (juce::Colours::white.withAlpha (0.06f));
         g.drawRoundedRectangle (plate, 10.0f, 1.0f);
         text (g, "ONIRIQUE", plate.withHeight (22).translated (0, 6), font (Face::display, 10.0f, 0.3f), bone.withAlpha (0.6f));
-        text (g, SOLO_LA2A ? "LA-2A" : "1176", plate.withHeight (30).translated (0, 24), font (Face::display, 28.0f, 0.06f), accent);
+        text (g, SOLO_LA2A ? "L2A" : "F76", plate.withHeight (30).translated (0, 24), font (Face::display, 28.0f, 0.06f), accent);
         text (g, SOLO_LA2A ? "OPTICAL LEVELING AMPLIFIER" : "FET LIMITING AMPLIFIER", plate.withHeight (14).translated (0, 56),
               font (Face::mono, 8.5f, 0.2f), haze);
     }
@@ -277,7 +277,7 @@ void SoloEditor::paintTitle (juce::Graphics& g, juce::Rectangle<float> area) con
     if (logo.isValid()) g.drawImage (logo, R (x, cy - 13, 28, 26), juce::RectanglePlacement::centred);
     x += 38;
     text (g, "ONIRIQUE", R (x, cy - 16, 120, 14), font (Face::display, 11.0f, 0.14f), bone.withAlpha (0.75f), juce::Justification::centredLeft);
-    const juce::String name = SOLO_LA2A ? "LA-2A" : "1176";
+    const juce::String name = SOLO_LA2A ? "L2A" : "F76";
     text (g, name, R (x - 1, cy - 4, 160, 22), font (Face::display, 20.0f, 0.1f), accent, juce::Justification::centredLeft);
     const float w = juce::GlyphArrangement::getStringWidth (font (Face::display, 20.0f, 0.1f), name);
     text (g, SOLO_LA2A ? "OPTICAL LEVELER" : "FET LIMITER", R (x + w + 10, cy + 1, 160, 14), font (Face::body, 8.5f, 0.14f), dim, juce::Justification::centredLeft);
