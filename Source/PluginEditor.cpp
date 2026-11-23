@@ -209,7 +209,8 @@ void SoloEditor::renderBackground()
     g.fillRoundedRectangle (f, 18.0f);
     {
         juce::Graphics::ScopedSaveState ss (g);
-        g.reduceClipRegion (f.toNearestInt());
+        juce::Path round; round.addRoundedRectangle (f, 18.0f);   // les stries suivent l'arrondi de la façade
+        g.reduceClipRegion (round);
         juce::Random rnd (1176);
         for (float y = f.getY() + 1.5f; y < f.getBottom(); y += 2.0f)
         {
