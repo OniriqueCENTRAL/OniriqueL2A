@@ -74,7 +74,7 @@ private:
     std::atomic<bool> ready { false };
     std::atomic<float> *pMix = nullptr, *pBypass = nullptr, *pOs = nullptr;
 #if SOLO_LA2A
-    std::atomic<float> *pGain = nullptr, *pPeak = nullptr, *pLimit = nullptr;
+    std::atomic<float> *pGain = nullptr, *pPeak = nullptr, *pLimit = nullptr, *pModel = nullptr;
 #else
     std::atomic<float> *pIn = nullptr, *pOut = nullptr, *pAtk = nullptr, *pRel = nullptr, *pRatio = nullptr, *pRev = nullptr;
 #endif

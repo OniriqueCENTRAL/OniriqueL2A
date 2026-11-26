@@ -26,6 +26,8 @@ public:
         setMouseCursor (juce::MouseCursor::PointingHandCursor);
     }
     void setScale (float s) { scale = s; repaint(); }
+    /** montre cette case allumée quel que soit le réglage (-1 : le réglage) ; L2, câblé en LIMIT */
+    void setForced (int i) { if (i != forced) { forced = i; startTimerHz (60); } }
 
     void paint (juce::Graphics& g) override
     {
@@ -60,7 +62,7 @@ private:
         for (int i = 0; i < items.size(); ++i)
         {
             auto& l = lit[(size_t) i];
-            const float t = i == index ? 1.0f : 0.0f;
+            const float t = i == (forced >= 0 ? forced : index) ? 1.0f : 0.0f;
             if (std::abs (l - t) > 0.01f) { l += 0.25f * (t - l); moving = true; } else l = t;
         }
         repaint();
@@ -70,7 +72,69 @@ private:
     bool reversed = false;
     juce::ParameterAttachment attachment;
     std::vector<float> lit;
-    int index = 0, hover = -1;
+    int index = 0, hover = -1, forced = -1;
+    float scale = 1.0f;
+};
+
+//==============================================================================
+//  Le menu du modèle (L2A) : une pastille « MODEL  TUBE ▾ » au-dessus du VU ; un clic ouvre la liste des modèles.
+class ModelMenu : public juce::Component, public juce::SettableTooltipClient
+{
+public:
+    ModelMenu (juce::RangedAudioParameter& p, juce::StringArray names, juce::StringArray details)
+        : items (std::move (names)), notes (std::move (details)),
+          attachment (p, [this] (float v) { index = (int) std::lround (v); repaint(); })
+    {
+        attachment.sendInitialUpdate();
+        setMouseCursor (juce::MouseCursor::PointingHandCursor);
+    }
+    void setScale (float s) { scale = s; repaint(); }
+
+    void paint (juce::Graphics& g) override
+    {
+        const auto r = getLocalBounds().toFloat().reduced (1.0f);
+        const float rad = r.getHeight() * 0.5f;
+        g.setColour (juce::Colours::black.withAlpha (0.4f));
+        g.fillRoundedRectangle (r, rad);
+        g.setColour (hover || open ? ui::accent.withAlpha (0.7f) : juce::Colours::white.withAlpha (0.1f));
+        g.drawRoundedRectangle (r, rad, 1.0f);
+        auto in = r.reduced (14.0f * scale, 0.0f);
+        const auto chev = in.removeFromRight (12.0f * scale);
+        ui::text (g, "MODEL", in.removeFromLeft (56.0f * scale), ui::font (ui::Face::mono, 9.5f * scale, 0.16f), ui::haze,
+                  juce::Justification::centredLeft);
+        ui::text (g, items[juce::jlimit (0, items.size() - 1, index)], in, ui::font (ui::Face::display, 12.5f * scale, 0.1f),
+                  ui::bone, juce::Justification::centredLeft);
+        const auto c = chev.getCentre();
+        juce::Path p;
+        p.startNewSubPath (c.x - 4.0f * scale, c.y - 2.0f * scale);
+        p.lineTo (c.x, c.y + 2.5f * scale);
+        p.lineTo (c.x + 4.0f * scale, c.y - 2.0f * scale);
+        g.setColour (hover || open ? ui::bone : ui::accent);
+        g.strokePath (p, juce::PathStrokeType (1.6f * scale, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    }
+    void mouseEnter (const juce::MouseEvent&) override { hover = true; repaint(); }
+    void mouseExit (const juce::MouseEvent&) override { hover = false; repaint(); }
+    void mouseDown (const juce::MouseEvent&) override
+    {
+        juce::PopupMenu m;
+        for (int i = 0; i < items.size(); ++i)
+            m.addItem (i + 1, items[i] + "   " + notes[i], true, i == index);
+        open = true; repaint();
+        juce::Component::SafePointer<ModelMenu> safe (this);
+        m.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (this).withMinimumWidth (getWidth()),
+                         [safe] (int r)
+                         {
+                             if (safe == nullptr) return;
+                             safe->open = false; safe->repaint();
+                             if (r > 0) safe->attachment.setValueAsCompleteGesture ((float) (r - 1));
+                         });
+    }
+
+private:
+    juce::StringArray items, notes;
+    juce::ParameterAttachment attachment;
+    int index = 0;
+    bool hover = false, open = false;
     float scale = 1.0f;
 };
 
@@ -78,7 +142,7 @@ private:
 //  L'interface : la barre ONIRIQUE (presets, IN, A/B, licence), la façade de l'appareil dans la DA ONIRIQUE (métal sombre
 //  brossé, oreilles de rack vissées, liseré braise), puis la bande du bas (OVERSAMPLING, MIX, réduction).
 //    1176   INPUT et OUTPUT en grand, ATTACK et RELEASE empilés, la colonne RATIO, le VU (BLACK / BLUE au-dessus), METER
-//    LA-2A  la colonne MODE, GAIN en grand, le VU au centre, PEAK REDUCTION en grand, METER
+//    LA-2A  la colonne MODE, GAIN en grand, le VU au centre (le menu MODEL au-dessus), PEAK REDUCTION en grand, METER
 //==============================================================================
 class SoloEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
@@ -110,6 +174,7 @@ private:
 #if SOLO_LA2A
     ui::Knob gain, peak;
     ButtonColumn mode;
+    ModelMenu model;
 #else
     ui::Knob input, output, attack, release;
     ButtonColumn ratio;

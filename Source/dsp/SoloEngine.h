@@ -15,6 +15,7 @@ struct Params
 #if SOLO_LA2A
     float gain = 0.0f, peak = 40.0f;
     bool limit = false;
+    int model = 0;   // TUBE, GRAY, SILVER, L2 (CompLA2A.h)
 #else
     float input = 0.0f, output = 0.0f, attack = 3.0f, release = 5.0f;
     int ratio = 0, revision = 0;
@@ -68,6 +69,7 @@ public:
     void process (juce::AudioBuffer<float>& buffer, const Params& p)
     {
 #if SOLO_LA2A
+        comp.setModel (p.model);
         comp.setParams (p.gain, juce::jlimit (0.0f, 100.0f, p.peak), p.limit, false);
 #else
         comp.setRevision (p.revision);

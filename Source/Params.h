@@ -12,11 +12,13 @@ namespace params
 inline const juce::String input = "input", output = "output", attack = "attack", release = "release", ratio = "ratio",
                           revision = "revision";
 // LA-2A
-inline const juce::String gain = "gain", peak = "peakReduction", limit = "limit";
+inline const juce::String gain = "gain", peak = "peakReduction", limit = "limit", model = "model";
 // les deux
 inline const juce::String meter = "meter", oversampling = "oversampling", mix = "mix", bypass = "bypass";
 
 #if SOLO_LA2A
+// les modèles de l'appareil (CompLA2A.h) : TUBE, le son d'origine ; GRAY, SILVER et L2, les trois générations
+inline const juce::StringArray modelNames { "TUBE", "GRAY", "SILVER", "L2" };
 inline const juce::StringArray meterNames { "GAIN RED", "+10", "+4" };
 #else
 inline const juce::StringArray meterNames { "GR", "+8", "+4", "OFF" };
@@ -36,6 +38,7 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout layout()
     p.push_back (std::make_unique<AudioParameterFloat> (ParameterID { peak, 1 }, "Peak Reduction", NormalisableRange<float> (0.0f, 100.0f, 0.1f), 40.0f,
                                                         Attr().withStringFromValueFunction ([] (float v, int) { return String (roundToInt (v)); })));
     p.push_back (std::make_unique<AudioParameterChoice> (ParameterID { limit, 1 }, "Mode", StringArray { "Compress", "Limit" }, 0));
+    p.push_back (std::make_unique<AudioParameterChoice> (ParameterID { model, 2 }, "Model", modelNames, 0));
 #else
     p.push_back (std::make_unique<AudioParameterFloat> (ParameterID { input, 1 }, "Input", NormalisableRange<float> (-12.0f, 36.0f, 0.1f), 0.0f,
                                                         Attr().withLabel ("dB").withStringFromValueFunction (dbText)));

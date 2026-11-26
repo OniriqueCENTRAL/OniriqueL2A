@@ -7,7 +7,7 @@
 //==============================================================================
 //  Les presets d'usine, rangés par usage (VOCALS, DRUMS, BASS & INSTRUMENTS, MIX BUS). Un réglage non cité reprend sa
 //  valeur d'usine. Valeurs en unités du réglage (dB, %), ATTACK et RELEASE de 1 (lent) à 7 (rapide), les choix par leur
-//  rang (RATIO 0 4:1 … 3 20:1, 4 ALL | version 0 BLACK, 1 BLUE | MODE 0 COMPRESS, 1 LIMIT).
+//  rang (RATIO 0 4:1 … 3 20:1, 4 ALL | version 0 BLACK, 1 BLUE | MODE 0 COMPRESS, 1 LIMIT | MODÈLE 0 TUBE, 1 GRAY, 2 SILVER, 3 L2).
 //==============================================================================
 namespace solopresets
 {
@@ -29,6 +29,9 @@ inline std::vector<onirique::PresetBank::Stock> stockPresets()
         { "Limit Mode Vocal", vocals, { { peak, 55 }, { gain, 6 }, { limit, 1 } } },
         { "Parallel Opto", drums | mixbus, { { peak, 70 }, { gain, 10 }, { mix, 45 } } },
         { "Bus Glue", mixbus, { { peak, 20 }, { gain, 1 } } },
+        { "Gray Warm Vocal", vocals, { { model, 1 }, { peak, 45 }, { gain, 4 } } },
+        { "Silver Punch", drums | instruments, { { model, 2 }, { peak, 55 }, { gain, 6 } } },
+        { "L2 Legato", vocals | instruments, { { model, 3 }, { peak, 50 }, { gain, 5 } } },
     };
 #else
     return {

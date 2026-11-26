@@ -9,7 +9,7 @@ SoloProcessor::SoloProcessor()
     auto raw = [this] (const juce::String& id) { return apvts.getRawParameterValue (id); };
     pMix = raw (params::mix); pBypass = raw (params::bypass); pOs = raw (params::oversampling);
 #if SOLO_LA2A
-    pGain = raw (params::gain); pPeak = raw (params::peak); pLimit = raw (params::limit);
+    pGain = raw (params::gain); pPeak = raw (params::peak); pLimit = raw (params::limit); pModel = raw (params::model);
 #else
     pIn = raw (params::input); pOut = raw (params::output); pAtk = raw (params::attack); pRel = raw (params::release);
     pRatio = raw (params::ratio); pRev = raw (params::revision);
@@ -56,7 +56,7 @@ solo::Params SoloProcessor::read() const
 {
     solo::Params p;
 #if SOLO_LA2A
-    p.gain = pGain->load(); p.peak = pPeak->load(); p.limit = pLimit->load() > 0.5f;
+    p.gain = pGain->load(); p.peak = pPeak->load(); p.limit = pLimit->load() > 0.5f; p.model = juce::roundToInt (pModel->load());
 #else
     p.input = pIn->load(); p.output = pOut->load(); p.attack = pAtk->load(); p.release = pRel->load();
     p.ratio = juce::roundToInt (pRatio->load()); p.revision = juce::roundToInt (pRev->load());

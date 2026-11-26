@@ -29,6 +29,8 @@ SoloEditor::SoloEditor (SoloProcessor& proc)
 #if SOLO_LA2A
       gain (p (params::gain), "GAIN", knobLook), peak (p (params::peak), "PEAK REDUCTION", knobLook),
       mode (p (params::limit), { "COMPRESS", "LIMIT" }, true),
+      model (p (params::model), params::modelNames,
+             { fr ("le son d'origine"), fr ("milieu des années 60, chaud"), fr ("fin des années 60, rapide"), fr ("début des années 60, lent") }),
 #else
       input (p (params::input), "INPUT", knobLook, true), output (p (params::output), "OUTPUT", knobLook, true),
       attack (p (params::attack), "ATTACK", knobLook), release (p (params::release), "RELEASE", knobLook),
@@ -55,11 +57,16 @@ SoloEditor::SoloEditor (SoloProcessor& proc)
             logo = juce::ImageFileFormat::loadFrom (data, (size_t) size);
     }
 #if SOLO_LA2A
-    for (juce::Component* c : std::initializer_list<juce::Component*> { &gain, &peak, &mode })
+    for (juce::Component* c : std::initializer_list<juce::Component*> { &gain, &peak, &mode, &model })
         addAndMakeVisible (c);
+    model.setTooltip (fr ("MODEL : la génération de l'appareil. TUBE, le son d'origine du plugin. GRAY, le modèle peint du milieu des "
+                          "années 60 : vitesse moyenne, plus chaud, aigus adoucis. SILVER, la façade en aluminium de la fin des années 60 : "
+                          "le plus rapide, punchy et transparent. L2, l'ancêtre du début des années 60 : le plus lent, un son adouci, "
+                          "toujours en LIMIT."));
     gain.setTip (fr ("GAIN : le niveau de sortie (le rattrapage de la compression)."));
     peak.setTip (fr ("PEAK REDUCTION : la quantité de compression. Plus haut, la cellule optique réduit davantage : douce, lente, musicale."));
-    mode.setTooltip (fr ("MODE : COMPRESS, une compression douce ; LIMIT, un ratio plus fort, qui tient davantage les crêtes."));
+    mode.setTooltip (fr ("MODE : COMPRESS, une compression douce ; LIMIT, un ratio plus fort, qui tient davantage les crêtes. "
+                         "Le modèle L2 est toujours en LIMIT."));
 #else
     for (juce::Component* c : std::initializer_list<juce::Component*> { &input, &output, &attack, &release, &ratio, &revision })
         addAndMakeVisible (c);
@@ -141,6 +148,11 @@ float SoloEditor::vuValue()
 void SoloEditor::timerCallback()
 {
     if (onirique::look::changedSince (themeSeen) && bar.onThemeChanged) bar.onThemeChanged();
+#if SOLO_LA2A
+    // L2 est câblé en LIMIT : la colonne MODE s'éteint (comme l'appareil, qui n'a pas ce choix)
+    const bool forced = juce::roundToInt (processor.apvts.getRawParameterValue (params::model)->load()) == 3;
+    if (mode.isEnabled() == forced) { mode.setEnabled (! forced); mode.setAlpha (forced ? 0.45f : 1.0f); mode.setForced (forced ? 1 : -1); }
+#endif
     // le niveau de sortie (crête, retombée douce) pour le VU en +8 / +4
     const float pk = processor.consumeOutputPeak();
     const float db = pk > 1.0e-6f ? 20.0f * std::log10 (pk) : -100.0f;
@@ -163,6 +175,7 @@ void SoloEditor::resized()
     knob (gain, layout::gainC, { 186, 236 });
     knob (peak, layout::peakC, { 186, 236 });
     place (mode, layout::modeR); mode.setScale (s);
+    place (model, R (220, 30).withCentre ({ layout::vuR.getCentreX(), layout::vuR.getY() - 34 })); model.setScale (s);
 #else
     knob (input, layout::inC, { 176, 220 });
     knob (output, layout::outC, { 176, 220 });
