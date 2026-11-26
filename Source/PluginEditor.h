@@ -114,9 +114,11 @@ public:
     }
     void mouseEnter (const juce::MouseEvent&) override { hover = true; repaint(); }
     void mouseExit (const juce::MouseEvent&) override { hover = false; repaint(); }
-    void mouseDown (const juce::MouseEvent&) override
+    void mouseDown (const juce::MouseEvent&) override { openMenu(); }
+    void openMenu()
     {
         juce::PopupMenu m;
+        m.setLookAndFeel (&getLookAndFeel());   // le menu dans la DA du plugin (jamais le style par défaut)
         for (int i = 0; i < items.size(); ++i)
             m.addItem (i + 1, items[i] + "   " + notes[i], true, i == index);
         open = true; repaint();
